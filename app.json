@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "TransporterProject",
-    "slug": "TransporterProject",
+    "slug": "transporterproject",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -15,16 +15,44 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.mariw123.transporterproject"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.mariw123.transporterproject",
+      "googleMaps.ApiKey": "AIzaSyBqkcaFFFl2WH48AQi7C7v2W0g3hRDcTgE",
+      "permissions": [
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.FOREGROUND_SERVICE"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow Transporterproject to use your location."
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "3da455cc-8901-492f-b212-9ef09d2b8d24"
+      }
+    },
+    "owner": "mariw123",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/3da455cc-8901-492f-b212-9ef09d2b8d24"
     }
   }
 }
