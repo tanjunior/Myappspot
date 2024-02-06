@@ -1,15 +1,28 @@
 // SecondPage.js
 
-import React, { useState, useMemo, useRef, useCallback } from "react";
-import { View, Text, Image } from "react-native";
+import React, { useState, useMemo, useEffect, useRef, useCallback } from "react";
+import { View, Text, Image, TouchableOpacity } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { BottomSheetModalProvider, BottomSheetModal } from '@gorhom/bottom-sheet';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import IconSix from 'react-native-vector-icons/FontAwesome6';
 import StarRating from 'react-native-star-rating-widget';
+import * as Location from 'expo-location';
 
 
 const SecondPage = ({ route }) => {
+  const [errorMsg, setErrorMsg] = useState(null);
+
+  async function getCurrentLocation() {
+    let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        setErrorMsg('Permission to access location was denied');
+        return;
+      }
+
+    return location = await Location.getCurrentPositionAsync({});
+  }
   
   const { params: { transportName = null } = {} } = route || {};
 
@@ -372,6 +385,15 @@ const SecondPage = ({ route }) => {
     console.log('handleSheetChanges', index);
   }, []);
 
+
+  
+  const [region, setRegion] = useState({
+    latitude: coordinates.length > 0 ? coordinates[0].latitude : 0,
+    longitude: coordinates.length > 0 ? coordinates[0].longitude : 0,
+    latitudeDelta: 0.0922,
+    longitudeDelta: 0.0421,
+  });
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
     <BottomSheetModalProvider>
@@ -385,12 +407,7 @@ const SecondPage = ({ route }) => {
         </BottomSheetModal>
       <MapView
         style={{ width: '100%',height: '100%', }}
-        initialRegion={{
-          latitude: coordinates.length > 0 ? coordinates[0].latitude : 0,
-          longitude: coordinates.length > 0 ? coordinates[0].longitude : 0,
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.0421,
-        }}
+        region={region}        
         provider={PROVIDER_GOOGLE}
         showsUserLocation={true}
       >
@@ -428,6 +445,17 @@ const SecondPage = ({ route }) => {
           </Marker>
         ))}
       </MapView>
+      <TouchableOpacity
+        style={{position: "absolute", bottom: "55%", right: "5%"}}
+        onPress={async () => {
+          const {coords} = await getCurrentLocation()
+          console.log(coords)
+
+          setRegion({longitude: coords.longitude, latitude: coords.latitude})
+        }
+      }>
+        <IconSix name="location-crosshairs" size={40}/>
+      </TouchableOpacity>
     </View>
     </BottomSheetModalProvider>
     </GestureHandlerRootView>
