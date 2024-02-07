@@ -1,7 +1,7 @@
 // SecondPage.js
 
 import React, { useState, useMemo, useRef, useCallback, useEffect } from "react";
-import { View, Text, Image, TouchableOpacity } from "react-native";
+import { View, Text, Image, TouchableOpacity, Platform } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { BottomSheetModalProvider, BottomSheetModal } from '@gorhom/bottom-sheet';
 import * as Location from 'expo-location';
@@ -12,9 +12,22 @@ import Flash from '../assets/markers/flash.png'
 import Jt from '../assets/markers/JT.png'
 import Kerry from '../assets/markers/kerry.png'
 import Th from '../assets/markers/TH.png'
-
+import * as Linking from 'expo-linking';
 import { supabase } from '../utils/supabase'
 import { useAuth } from "../Context/Auth";
+
+
+
+
+async function getCurrentLocation() {
+  let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') {
+      // setErrorMsg('Permission to access location was denied');
+      return;
+    }
+
+  return location = await Location.getCurrentPositionAsync({});
+}
 
 const SecondPage = ({ route }) => {  
   const { params: { transportName = null } = {} } = route || {};
@@ -41,17 +54,6 @@ const SecondPage = ({ route }) => {
       longitudeDelta: 0.0421,
     })
   }, [branches]);
-
-
-  async function getCurrentLocation() {
-    let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        setErrorMsg('Permission to access location was denied');
-        return;
-      }
-
-    return location = await Location.getCurrentPositionAsync({});
-  }
   
   async function fetchBranches() {
     let { data: branches, error } = await supabase
@@ -63,7 +65,8 @@ const SecondPage = ({ route }) => {
       return console.log('error', error)
     }
     // console.log(branches)
-    setBranches(filterBranches(branches))
+    if (!transportName) setBranches(branches)
+    else setBranches(filterBranches(branches))
   }
 
   function filterBranches(branches) {
@@ -222,6 +225,24 @@ function BottomSheetContent({activeMarker}) {
     </View>
     <Text>{activeMarker.name}</Text>
     {hasReviewed? <StarRatingDisplay rating={rating}/> :<StarRating rating={rating} onChange={onStarChange} />}
+    <TouchableOpacity onPress={async () => {
+      
+      const {coords} = await getCurrentLocation()
+
+      const currentLocation = `${coords.latitude},${coords.longitude}`
+      const destination = `${activeMarker.lat},${activeMarker.long}`
+      
+      const scheme = Platform.select({ ios: 'maps://', android: 'geo:' });
+      const label = 'Custom Label';
+      const url = Platform.select({
+        ios: `${scheme}${currentLocation}${label}@${destination}`,
+        android: `${scheme}${currentLocation}${destination}(${label})`
+      });
+      
+      Linking.openURL(url);
+    }}>
+      <Text>Go</Text>
+    </TouchableOpacity>
   </View>
 }
 
