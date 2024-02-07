@@ -15,6 +15,7 @@ import Th from '../assets/markers/TH.png'
 import * as Linking from 'expo-linking';
 import { supabase } from '../utils/supabase'
 import { useAuth } from "../Context/Auth";
+import { Link } from "@react-navigation/native";
 
 
 
@@ -231,15 +232,20 @@ function BottomSheetContent({activeMarker}) {
 
       const currentLocation = `${coords.latitude},${coords.longitude}`
       const destination = `${activeMarker.lat},${activeMarker.long}`
+
+      const label = `${activeMarker.company} - ${activeMarker.name}`
       
-      const scheme = Platform.select({ ios: 'maps://', android: 'geo:' });
-      const label = 'Custom Label';
-      const url = Platform.select({
-        ios: `${scheme}${currentLocation}${label}@${destination}`,
-        android: `${scheme}${currentLocation}${destination}(${label})`
+      const url = Platform.select({ 
+        ios: `googleMaps://app?saddr=${currentLocation}&daddr=${destination}(${label})`, 
+        android: `geo://${currentLocation}?q=${destination}(${label})` 
       });
       
-      Linking.openURL(url);
+      Linking.canOpenURL(url).then((supported) => {
+        if (supported) Linking.openURL(url);
+        else Linking.openURL(`https://www.google.co.th/maps/dir/?api=1&destination=${destination}&dir_action=navigate`)
+      }).catch(() => {
+        Linking.openURL(`maps://${currentLocation}?q=${destination}`) 
+      })
     }}>
       <Text>Go</Text>
     </TouchableOpacity>
