@@ -12,6 +12,12 @@ import ShippingCostPageWithStack from "./screens/ShippingCostPage";
 import Ionicons from "react-native-vector-icons/Ionicons"; // Import Ionicons from react-native-vector-icons
 import Start from "./screens/Start";
 import * as Updates from 'expo-updates';
+import Comment from "./screens/Comment";
+import { supabase } from "./utils/supabase";
+import Auth from "./Components/Auth";
+import Account from "./Components/Account";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import AuthProvider, { useAuth } from "./Context/Auth";
 
 
 
@@ -19,6 +25,9 @@ const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator(); // Add this line
 
 function MyTabs() {
+  const {session} = useAuth();
+
+  if (!session) return <Auth />
   
   return (
     <Tab.Navigator
@@ -34,6 +43,10 @@ function MyTabs() {
             iconName = focused ? "list" : "list-outline"; // Assuming you have an appropriate icon for the prohibited goods
           } else if (route.name === "Shipping") {
             iconName = focused ? "cube" : "cube-outline"; // Assuming you have an appropriate icon for the Shipping menu
+          } else if (route.name === "Comment") {
+            iconName = focused ? "cube" : "cube-outline"; // Assuming you have an appropriate icon for the Shipping menu
+          } else if (route.name === "Account") {
+            iconName = focused ? "cube" : "cube-outline"; // Assuming you have an appropriate icon for the Shipping menu
           }
 
           // Return the icon component directly
@@ -45,6 +58,8 @@ function MyTabs() {
       
       <Tab.Screen name="Shipping" component={ShippingCostPage} options={{headerShown: false, title: 'เช็คพัสดุ'}} />
       <Tab.Screen name="ProhibitedGoods" component={ProhibitedGoodsPage} options={{ title: 'สิ่งของต้องห้าม' }} />
+      <Tab.Screen name="Comment" component={Comment} options={{ title: 'comment' }} />
+      <Tab.Screen name="Account" component={Account} options={{ title: 'Account' }} />
 
     </Tab.Navigator>
   );
@@ -67,11 +82,13 @@ function MyStack() {
 
 const App = () => {
   return (
-    
-    <NavigationContainer>
-      <MyStack />
-    </NavigationContainer>
-    
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <AuthProvider>
+        <NavigationContainer>
+          <MyStack />
+        </NavigationContainer>
+      </AuthProvider>
+    </GestureHandlerRootView>
   );
 };
 
